@@ -11,6 +11,11 @@
 
 layer_t OperationID[TOTAL_OPS] = NET;
 
+/*
+ * Get the results from the last convolutional layer and
+ * executes and returns the output channel with the maximum
+ * average (the division is skipped for innecessary)
+ */
 result_t av_pooling(memory_t output[MAX_INPUT_SIZE][X_PAR_UNROLL])
 {
 #pragma HLS INLINE
@@ -48,6 +53,13 @@ result_t av_pooling(memory_t output[MAX_INPUT_SIZE][X_PAR_UNROLL])
         return max_index;
 }
 
+/*
+ * Function to control the stages of execution of the convolutional
+ * layers. It makes sure that the layers are executed in the previously
+ * defined order.
+ * In order to reuse memory resources, the input and output
+ * memories are alternated following the corresponding pattern
+ */
 void convolutions(memory_t mem_i[MAX_INPUT_SIZE>>3][X_PAR_UNROLL],
                   memory_t mem_o[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
                   kernel_t weights_ker[TOTAL_WEIGHTS][9],
@@ -80,21 +92,23 @@ void convolutions(memory_t mem_i[MAX_INPUT_SIZE>>3][X_PAR_UNROLL],
 
         //Classifier
         mem_ctr::config_controller(OperationID[TOTAL_OPS - 1]);
-        hw_conv(OperationID[TOTAL_OPS - 1],mem_o,mem_i,weights_ker,weights_bi,false);
+        hw_conv(OperationID[TOTAL_OPS-1],mem_o,mem_i,weights_ker,weights_bi,false);
 
 }
 
+/*
+ * Controls wether a parameters load or an execution have to be executed
+ * and triggers the corresponding one.
+ */
 result_t fpga_top(data_t image[MAX_INPUT_SIZE],
                   bool load,
                   kernel_t bias[TOTAL_BIAS],
                   kernel_t kernels[TOTAL_WEIGHTS][9])
 {
-        result_t result;
-
-        //#pragma HLS DATAFLOW
         static kernel_t weights_bi[TOTAL_BIAS];
         static kernel_t weights_ker[TOTAL_WEIGHTS][9];
-        memory_t mem_i[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL], mem_o[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL];
+        memory_t mem_i[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL];
+        memory_t mem_o[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL];
 #pragma HLS ARRAY_PARTITION variable=weights_ker complete factor=9 dim=2
 #pragma HLS ARRAY_PARTITION variable=mem_i complete factor=8 dim=2
 #pragma HLS ARRAY_PARTITION variable=mem_o complete factor=8 dim=2
@@ -119,7 +133,7 @@ result_t fpga_top(data_t image[MAX_INPUT_SIZE],
 
         convolutions(mem_i,mem_o,weights_ker,weights_bi);
 
-        result = av_pooling(mem_i);
 
-        return result;
+        return av_pooling(mem_i);
+
 }
