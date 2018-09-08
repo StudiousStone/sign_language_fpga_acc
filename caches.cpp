@@ -8,6 +8,11 @@
 #include "caches.h"
 #include "memory_controller.h"
 
+/*
+ *
+ *
+ *
+ */
 void caches::init_ifm(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                       memory_t input[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL],
                       layer_t layer, int col)
@@ -20,6 +25,12 @@ void caches::init_ifm(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
 
 }
 
+/*
+ * Load one row of input from memory to cache.
+ * The elements currently stored in the cache are sent to the "upper row" register
+ * The 8 central elements have a fixed pattern to be loaded,
+ * while the leftmost and rightmost elements have to be checked independently
+ */
 void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                           memory_t input[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL],
                           layer_t layer,
@@ -29,6 +40,7 @@ void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
         int16_t idy = row + 2 - PAD;
 #pragma HLS INLINE
 #pragma HLS PIPELINE
+        // 8 central elements
  load_row:
         for (int j = 1; j < X_PAR_UNROLL+1; j++) {
 #pragma HLS UNROLL
@@ -42,6 +54,7 @@ void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                         ifm_cache[2][j] = input[mem_ctr::current_in_offset + col][j - PAD];
         }
 
+        // Left most element
         ifm_cache[0][0] = ifm_cache[1][0];
         ifm_cache[1][0] = ifm_cache[2][0];
         idx_first = X_PAR_UNROLL*col - PAD;
@@ -50,6 +63,7 @@ void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
         else
                 ifm_cache[2][0] = input[mem_ctr::current_in_offset + col - 1][X_PAR_UNROLL-1];
 
+        // Right most element
         ifm_cache[0][X_PAR_UNROLL + 1] = ifm_cache[1][X_PAR_UNROLL + 1];
         ifm_cache[1][X_PAR_UNROLL + 1] = ifm_cache[2][X_PAR_UNROLL + 1];
         idx_last = X_PAR_UNROLL*col + X_PAR_UNROLL + 1 - PAD;
@@ -63,6 +77,9 @@ void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                 mem_ctr::current_in_offset += mem_ctr::offset_bt_in_rows;
 }
 
+/*
+ * Load 3x3 kernel from memory to cache
+ */
 void caches::fetch_3x3_kernel_weights(kernel_t weights[3][3],
                                       kernel_t weights_ker[TOTAL_WEIGHTS][9])
 {
@@ -77,12 +94,22 @@ void caches::fetch_3x3_kernel_weights(kernel_t weights[3][3],
         }
 }
 
+/*
+ * Load 1x1 kernel from memory to central element of cache
+ */
 void caches::fetch_1x1_kernel_weight(int8_t weights[3][3],
                                      kernel_t weights_ker[TOTAL_WEIGHTS][9])
 {
         weights[1][1] = weights_ker[mem_ctr::current_offset_kernel][mem_ctr::current_offset_1x1_kernel];
 }
 
+/*
+ * Load one output row from memory to cache.
+ * First time it is initialized, the bias instead of the output memory is read
+ * The different precision between the output memory and the cache has to be considered
+ * For layers with stride 2, the memory pattern is different in the memories
+ * and the caches, so it has to be taken in consideration
+ */
 void caches::ld_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         memory_t output[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
                         kernel_t bias,
@@ -121,9 +148,8 @@ void caches::ld_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
 
         }
 }
-
-void relu(bool fire,
-          product_data_t output_cache[X_PAR_UNROLL],
+// TODO: check if it can be a static function
+void relu(product_data_t output_cache[X_PAR_UNROLL],
           int sub_col,
           layer_t layer)
 {
@@ -138,7 +164,15 @@ void relu(bool fire,
 
 }
 
-
+/*
+ * Store one output row from memory to cache.
+ * The last time a value has to be stored, a relu is applied.
+ * The different precision between the output memory and the cache
+ * as well as possible overflows when storing the data have to be considered.
+ * For layers with stride 2, the memory pattern is different in the memories
+ * and the caches, so it also has to be taken in consideration
+ */
+//TODO: remove the unnecessary bool fire variable
 void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         memory_t output[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
                         layer_t layer,
@@ -168,7 +202,7 @@ void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         output_cache[sub_col] = output_cache[sub_col] >> fixed_slide;
 
                         if (ch_in == layer.ch_in-1) {
-                                relu(fire,output_cache,sub_col,layer);
+                                relu(output_cache,sub_col,layer);
 
                                 if (output_cache[sub_col] > INT8_MAX)
                                         output_cache[sub_col] = INT8_MAX;
@@ -188,7 +222,7 @@ void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         output_cache[sub_col] = output_cache[sub_col] >> fixed_slide;
 
                         if (ch_in == layer.ch_in-1) {
-                                relu(fire,output_cache,sub_col,layer);
+                                relu(output_cache,sub_col,layer);
 
                                 if (output_cache[sub_col] >= INT8_MAX)
                                         output_cache[sub_col] = INT8_MAX;
