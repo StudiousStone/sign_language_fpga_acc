@@ -29,7 +29,6 @@ namespace caches {
                         layer_t layer,
                         bool fire,
                         int col, int ch_in);
-        kernel_t get_bias(kernel_t weights_bi[MAX_CH_OUT]);
         void fetch_3x3_kernel_weights(int8_t weights[3][3],
                                       kernel_t weights_ker[TOTAL_WEIGHTS][9]);
         void fetch_1x1_kernel_weight(int8_t weights[3][3],
