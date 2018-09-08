@@ -26,16 +26,16 @@
 
 #define X_PAR_UNROLL 8
 
-	typedef int32_t product_data_t;
-	//Values involved in the interface have to be regular types
-	typedef int8_t kernel_t;
-	typedef int8_t data_t;
-	typedef int16_t memory_t;
-	typedef uint8_t result_t;
+typedef int32_t product_data_t;
+//Values involved in the interface have to be regular types
+typedef int8_t kernel_t;
+typedef int8_t data_t;
+typedef int16_t memory_t;
+typedef uint8_t result_t;
 
 result_t fpga_top(data_t image[MAX_INPUT_SIZE],
-				bool load,
-				kernel_t bias[MAX_CH_OUT],
-				kernel_t kernels[TOTAL_WEIGHTS][9]);
+                  bool load,
+                  kernel_t bias[MAX_CH_OUT],
+                  kernel_t kernels[TOTAL_WEIGHTS][9]);
 
 #endif //__FPGA_TOP_H__
