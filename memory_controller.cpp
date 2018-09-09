@@ -156,10 +156,10 @@ void mem_ctr::calc_offsets(layer_t layer,
                 }
         }
 
-        if (layer.type == CONV_3x3 && last_ch_in != ch_in) {
-                current_offset_kernel++;
-        } else {
-                if (last_ch_in != ch_in) {
+        if (last_ch_in != ch_in) {
+                if (layer.type == CONV_3x3) {
+                        current_offset_kernel++;
+                } else {
                         if (current_offset_1x1_kernel >= 8) {
                                 current_offset_1x1_kernel = 0;
                                 current_offset_kernel++;
