@@ -57,8 +57,8 @@ namespace mem_ctr {
 
         void init_mem_controller(data_t input_image[MAX_INPUT_SIZE],
                                  memory_t mem_i[MAX_INPUT_SIZE>>3][X_PAR_UNROLL]);
-        void config_controller(layer_t layer);
-        void set_offsets_next_lay(bool concat);
+        void init_offsets(layer_t layer);
+        void set_offsets(layer_t layer, bool concat);
         void calc_offsets(layer_t layer,
                           int col, int ch_in, int ch_out);
 }

@@ -67,31 +67,27 @@ void convolutions(memory_t mem_i[MAX_INPUT_SIZE>>3][X_PAR_UNROLL],
 {
 #pragma HLS INLINE off
         //CONV1
-        mem_ctr::config_controller(OperationID[0]);
+        mem_ctr::init_offsets(OperationID[0]);
         hw_conv(OperationID[0],mem_i,mem_o,weights_ker,weights_bi,false);
-        mem_ctr::set_offsets_next_lay(false);
 
  fire_modules:
         for (int lay = 1; lay < TOTAL_OPS - 1; lay += 3) {
 
                 //Squeeze
-                mem_ctr::config_controller(OperationID[lay]);
+                mem_ctr::set_offsets(OperationID[lay],false);
                 hw_conv(OperationID[lay],mem_o,mem_i,weights_ker,weights_bi,true);
-                mem_ctr::set_offsets_next_lay(false);
 
                 //Expand 1x1
-                mem_ctr::config_controller(OperationID[lay+1]);
+                mem_ctr::set_offsets(OperationID[lay+1],false);
                 hw_conv(OperationID[lay+1],mem_i,mem_o,weights_ker,weights_bi,true);
-                mem_ctr::set_offsets_next_lay(true);
 
                 //Expand 3x3
-                mem_ctr::config_controller(OperationID[lay+2]);
+                mem_ctr::set_offsets(OperationID[lay+2],true);
                 hw_conv(OperationID[lay+2],mem_i,mem_o,weights_ker,weights_bi,true);
-                mem_ctr::set_offsets_next_lay(false);
         }
 
         //Classifier
-        mem_ctr::config_controller(OperationID[TOTAL_OPS - 1]);
+        mem_ctr::set_offsets(OperationID[TOTAL_OPS-1],false);
         hw_conv(OperationID[TOTAL_OPS-1],mem_o,mem_i,weights_ker,weights_bi,false);
 
 }
