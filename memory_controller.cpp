@@ -5,8 +5,21 @@
  *
  */
 
+/*
+ * This file contains the memory management. It makes sure that
+ * the memory access is made transparent to the accelerator.
+ * The values are store in the memories following the pattern:
+ * input and output: ch-row-column, being ch the outtermost index.
+ * kernel: layer-ch_out-ch_in-row-column.
+ * In order to keep all the kernels aligned in multiples of 9, when
+ * kernels are 1x1, it is expected that zero padding has been added.
+ * In consequence the next layer's kernels can be read as if previous
+ * kernels had been of size 3x3.
+ */
 #include "memory_controller.h"
 
+// In order to speed up development and due to the big cost of ap_uint<>
+// variables in software, these variables are avoided during simulation
 #ifdef __SYNTHESIS__
 //Output
 ap_uint<20> mem_ctr::current_out_offset;
@@ -49,9 +62,14 @@ uint8_t mem_ctr::current_offset_1x1_kernel;
 
 #endif
 
+//TODO: Should be placed inside the #ifdef
 static ap_uint<NBITS(MAX_CH_OUT)> last_ch_in = 0;
 static ap_uint<NBITS(MAX_CH_OUT)> last_ch_out = 0;
 
+/*
+ * Read input image from the input port and store it in memory.
+ * Initialize to zero global memory offsets
+ */
 void mem_ctr::init_mem_controller(data_t input_image[MAX_INPUT_SIZE],
                                   memory_t mem_i[MAX_INPUT_SIZE>>3][X_PAR_UNROLL])
 {
@@ -75,8 +93,13 @@ void mem_ctr::init_mem_controller(data_t input_image[MAX_INPUT_SIZE],
 
         current_offset_bias = 0;
         current_offset_kernel = 0;
+        //TODO: current_offset_1x1_kernel??
 }
 
+/*
+ * Set values of offsets dependent on the layer parameters.
+ * Set to zero channels values
+ */
 void mem_ctr::config_controller(layer_t layer)
 {
         last_ch_in = 0;
@@ -89,6 +112,10 @@ void mem_ctr::config_controller(layer_t layer)
         offset_bt_ch_in = layer.in_pixel*layer.in_pixel >> 3;
 }
 
+/*
+ * Prepare offsets for next layer's execution
+ * If it is a concatenation layer, it has to be taken into account for the output
+ */
 void mem_ctr::set_offsets_next_lay(bool concat)
 {
         current_in_offset = 0;
@@ -105,8 +132,13 @@ void mem_ctr::set_offsets_next_lay(bool concat)
         current_offset_bias++;
 }
 
+/*
+ * For the execution of every new (sub)column, the offsets have to
+ * be updated in order for the access methods to follow the pattern
+ * of storage information in memories.
+ */
 void mem_ctr::calc_offsets(layer_t layer,
-			   int col, int ch_in, int ch_out)
+                           int col, int ch_in, int ch_out)
 {
 #pragma HLS INLINE
 

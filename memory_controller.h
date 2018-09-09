@@ -12,6 +12,8 @@
 
 namespace mem_ctr {
 
+// In order to speed up development and due to the big cost of ap_uint<>
+// variables in software, these variables are avoided during simulation
 #ifdef __SYNTHESIS__
         //Output controller
         extern ap_uint<20> current_out_offset;
