@@ -15,13 +15,13 @@
  */
 void caches::init_ifm(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                       memory_t input[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL],
-                      layer_t layer, int col)
+                      layer_t layer, int sub_col)
 {
 #pragma HLS PIPELINE
 #pragma HLS INLINE
 
-        caches::load_ifm_row(ifm_cache,input,layer,-2,col);
-        caches::load_ifm_row(ifm_cache,input,layer,-1,col);
+        caches::load_ifm_row(ifm_cache,input,layer,-2,sub_col);
+        caches::load_ifm_row(ifm_cache,input,layer,-1,sub_col);
 
 }
 
@@ -34,7 +34,7 @@ void caches::init_ifm(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
 void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
                           memory_t input[MAX_INPUT_SIZE >> 3][X_PAR_UNROLL],
                           layer_t layer,
-                          int row, int col)
+                          int row, int sub_col)
 {
         int16_t idx, idx_last, idx_first;
         int16_t idy = row + 2 - PAD;
@@ -44,33 +44,33 @@ void caches::load_ifm_row(data_t ifm_cache[K_SZ][X_PAR_UNROLL+2],
  load_row:
         for (int j = 1; j < X_PAR_UNROLL+1; j++) {
 #pragma HLS UNROLL
-                idx = X_PAR_UNROLL*col + j - PAD;
+                idx = X_PAR_UNROLL*sub_col + j - PAD;
 
                 ifm_cache[0][j] = ifm_cache[1][j];
                 ifm_cache[1][j] = ifm_cache[2][j];
                 if (idy >= layer.in_pixel || idy < 0)
                         ifm_cache[2][j] = 0;
                 else
-                        ifm_cache[2][j] = input[mem_ctr::current_in_offset + col][j - PAD];
+                        ifm_cache[2][j] = input[mem_ctr::current_in_offset + sub_col][j - PAD];
         }
 
         // Left most element
         ifm_cache[0][0] = ifm_cache[1][0];
         ifm_cache[1][0] = ifm_cache[2][0];
-        idx_first = X_PAR_UNROLL*col - PAD;
+        idx_first = X_PAR_UNROLL*sub_col - PAD;
         if (idx_first < 0 || idy >= layer.in_pixel || idy < 0)
                 ifm_cache[2][0] = 0;
         else
-                ifm_cache[2][0] = input[mem_ctr::current_in_offset + col - 1][X_PAR_UNROLL-1];
+                ifm_cache[2][0] = input[mem_ctr::current_in_offset + sub_col - 1][X_PAR_UNROLL-1];
 
         // Right most element
         ifm_cache[0][X_PAR_UNROLL + 1] = ifm_cache[1][X_PAR_UNROLL + 1];
         ifm_cache[1][X_PAR_UNROLL + 1] = ifm_cache[2][X_PAR_UNROLL + 1];
-        idx_last = X_PAR_UNROLL*col + X_PAR_UNROLL + 1 - PAD;
+        idx_last = X_PAR_UNROLL*sub_col + X_PAR_UNROLL + 1 - PAD;
         if (idx_last >= layer.in_pixel || idy >= layer.in_pixel || idy < 0)
                 ifm_cache[2][X_PAR_UNROLL+1] = 0;
         else
-                ifm_cache[2][X_PAR_UNROLL+1] = input[mem_ctr::current_in_offset + col + 1][0];
+                ifm_cache[2][X_PAR_UNROLL+1] = input[mem_ctr::current_in_offset + sub_col + 1][0];
 
         //Increase the offset if the row is not a padding row
         if (!(idy >= layer.in_pixel || idy < 0))

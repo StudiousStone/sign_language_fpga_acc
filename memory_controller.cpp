@@ -146,7 +146,7 @@ void mem_ctr::set_offsets(layer_t layer, bool concat)
  * storage's pattern in memories.
  */
 void mem_ctr::calc_offsets(layer_t layer,
-                           int col, int ch_in, int ch_out)
+                           int sub_col, int ch_in, int ch_out)
 {
 #pragma HLS INLINE
 
@@ -177,12 +177,14 @@ void mem_ctr::calc_offsets(layer_t layer,
         last_ch_in = ch_in;
 
         if (layer.stride == 2) {
-                current_out_offset = current_ch_out_offset + (col >> 1);
+                current_out_offset = current_ch_out_offset + (sub_col >> 1);
 
         } else {
-                current_out_offset = current_ch_out_offset + col;
+                current_out_offset = current_ch_out_offset + sub_col;
         }
 
-
+        //TODO: Check if it were possible to change current_in_offset so it can
+        //can be used the same way as out: + col/sub_col. Touch at least caches
+        //and maybe also memory controller
         current_in_offset = current_ch_in_offset;
 }
