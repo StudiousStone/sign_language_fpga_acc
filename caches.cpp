@@ -194,7 +194,7 @@ void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                 else
                         sub_col_aux = 0;
 
-        st_ofm_row_stride:
+        st_ofm_row_stride_2:
                 for (int sub_col = 0; sub_col < (X_PAR_UNROLL>>1); sub_col++) {
 #pragma HLS UNROLL
 
@@ -214,7 +214,7 @@ void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         output[mem_ctr::current_out_offset][sub_col_aux+sub_col] = output_cache[sub_col];
                 }
         } else {
-        st_ofm_row_stride:
+        st_ofm_row_stride_1:
                 for (int sub_col = 0; sub_col < X_PAR_UNROLL; sub_col++) {
 #pragma HLS UNROLL
 

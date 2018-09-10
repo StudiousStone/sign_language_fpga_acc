@@ -90,6 +90,8 @@ void mem_ctr::init_mem_controller(data_t input_image[MAX_INPUT_SIZE],
  */
 void mem_ctr::init_offsets(layer_t layer)
 {
+	#pragma HLS INLINE
+
         last_ch_in = 0;
         last_ch_out = 0;
 
@@ -114,6 +116,8 @@ void mem_ctr::init_offsets(layer_t layer)
  */
 void mem_ctr::set_offsets(layer_t layer, bool concat)
 {
+#pragma HLS INLINE
+
         last_ch_in = 0;
         last_ch_out = 0;
 

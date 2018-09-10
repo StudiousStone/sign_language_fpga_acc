@@ -115,7 +115,7 @@ void hw_conv(layer_t layer,
              bool fire)
 {
         //mejor variable = fire
-        //#pragma HLS FUNCTION_INSTANTIATE variable=weights_ker
+        #pragma HLS FUNCTION_INSTANTIATE variable=fire
 
         //#pragma HLS INLINE off
  it_out_ch:
