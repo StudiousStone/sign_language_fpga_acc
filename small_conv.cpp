@@ -80,16 +80,15 @@ void conv2d(layer_t layer,
             memory_t output[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
             kernel_t weights_ker[TOTAL_WEIGHTS][9],
             kernel_t weights_bi[MAX_CH_OUT],
-            bool fire,
             int ch_in, int ch_out)
 {
         #pragma HLS INLINE
 
         data_t ifm_cache[K_SZ][X_PAR_UNROLL+2];
-        #pragma HLS ARRAY_PARTITION variable=ifm_cache complete dim=0
         product_data_t ofm_cache[X_PAR_UNROLL];
-        #pragma HLS ARRAY_PARTITION variable=ofm_cache block factor=8 dim=1
         kernel_t ker_cache[3][3];
+        #pragma HLS ARRAY_PARTITION variable=ifm_cache complete dim=0
+        #pragma HLS ARRAY_PARTITION variable=ofm_cache block factor=8 dim=1
         #pragma HLS ARRAY_PARTITION variable=ker_cache complete dim=0
         kernel_t bias;
 
@@ -116,7 +115,7 @@ void conv2d(layer_t layer,
 
                         caches::ld_ofm_row(ofm_cache,output,bias,layer,sub_col,ch_in);
                         fixed_sub_col_conv(ifm_cache,ofm_cache,ker_cache,layer);
-                        caches::st_ofm_row(ofm_cache,output,layer,fire,sub_col,ch_in);
+                        caches::st_ofm_row(ofm_cache,output,layer,sub_col,ch_in);
                 }
         }
 }
@@ -130,9 +129,7 @@ void hw_conv(layer_t layer,
 {
         //mejor variable = fire
         #pragma HLS FUNCTION_INSTANTIATE variable=fire
-        //TODO: Remove fire variable if unnecessary
 
-        //#pragma HLS INLINE off
  out_ch:
         for(int ch_out = 0; ch_out < layer.ch_out; ch_out++){
                 #pragma HLS LOOP_TRIPCOUNT min=16 max=368 avg=133
@@ -140,7 +137,7 @@ void hw_conv(layer_t layer,
         in_ch:
                 for(int ch_in= 0; ch_in < layer.ch_in; ch_in++){
                         #pragma HLS LOOP_TRIPCOUNT min=3 max=736 avg=149
-                        conv2d(layer,input,output,weights_ker,weights_bi,fire,ch_in,ch_out);
+                        conv2d(layer,input,output,weights_ker,weights_bi,ch_in,ch_out);
                 }
         }
 }

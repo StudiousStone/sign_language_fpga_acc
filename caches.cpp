@@ -148,8 +148,8 @@ void caches::ld_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
 
         }
 }
-// TODO: check if it can be a static function
-void relu(product_data_t output_cache[X_PAR_UNROLL],
+
+static void relu(product_data_t output_cache[X_PAR_UNROLL],
           int sub_col,
           layer_t layer)
 {
@@ -172,11 +172,9 @@ void relu(product_data_t output_cache[X_PAR_UNROLL],
  * For layers with stride 2, the memory pattern is different in the memories
  * and the caches, so it also has to be taken in consideration
  */
-//TODO: remove the unnecessary bool fire variable
 void caches::st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         memory_t output[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
                         layer_t layer,
-                        bool fire,
                         int col, int ch_in)
 {
 #pragma HLS INLINE

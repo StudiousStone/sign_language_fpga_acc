@@ -27,7 +27,6 @@ namespace caches {
         void st_ofm_row(product_data_t ofm_row_cache[X_PAR_UNROLL],
                         memory_t output[MAX_OUTPUT_SIZE >> 3][X_PAR_UNROLL],
                         layer_t layer,
-                        bool fire,
                         int col, int ch_in);
         void fetch_3x3_kernel_weights(int8_t weights[3][3],
                                       kernel_t weights_ker[TOTAL_WEIGHTS][9]);

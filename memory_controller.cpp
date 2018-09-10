@@ -40,6 +40,8 @@ ap_uint<NBITS(TOTAL_BIAS)> mem_ctr::current_offset_bias; //TODO: Fix bit number
 ap_uint<NBITS(TOTAL_WEIGHTS)> mem_ctr::current_offset_kernel;
 ap_uint<NBITS(9)> mem_ctr::current_offset_1x1_kernel;
 
+static ap_uint<NBITS(MAX_CH_OUT)> last_ch_in = 0;
+static ap_uint<NBITS(MAX_CH_OUT)> last_ch_out = 0;
 #else
 //Output
 uint32_t mem_ctr::current_out_offset;
@@ -60,11 +62,9 @@ uint16_t mem_ctr::current_offset_bias;
 uint32_t mem_ctr::current_offset_kernel;
 uint8_t mem_ctr::current_offset_1x1_kernel;
 
+static uint16_t last_ch_in = 0;
+static uint16_t last_ch_out = 0;
 #endif
-
-//TODO: Should be placed inside the #ifdef
-static ap_uint<NBITS(MAX_CH_OUT)> last_ch_in = 0;
-static ap_uint<NBITS(MAX_CH_OUT)> last_ch_out = 0;
 
 /*
  * Read input image from the input port and store it in memory
