@@ -6,7 +6,7 @@
  */
 
 #include "fpga_top.h"
-#include "small_conv.h"
+#include "acc_core.h"
 #include "memory_controller.h"
 
 layer_t OperationID[TOTAL_OPS] = NET;

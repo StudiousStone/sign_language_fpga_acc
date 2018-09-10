@@ -13,7 +13,7 @@
  *  col             |               |
  *
  */
-#include "small_conv.h"
+#include "acc_core.h"
 #include "layers_def.h"
 #include "caches.h"
 #include "memory_controller.h"
