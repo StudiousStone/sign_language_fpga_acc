@@ -5,8 +5,8 @@
  *
  */
 
-#ifndef __SMALL_CONV_H__
-#define __SMALL_CONV_H__
+#ifndef __ACC_CORE__
+#define __ACC_CORE__
 
 
 #include "fpga_top.h"
@@ -21,4 +21,4 @@ void hw_conv(layer_t layer,
              bool fire
              );
 
-#endif //__SMALL_CONV_H__
+#endif //__ACC_CORE__
