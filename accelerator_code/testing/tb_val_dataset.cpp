@@ -1,22 +1,21 @@
-/************************************************************************************
-* Copyright (C) 2018 Pablo Correa Gomez										        *
-*                                                                                   *
-*    This program is free software; you can redistribute it and/or modify           *
-*    it under the terms of the GNU Affero General Public License as                 *
-*    published by the Free Software Foundation; either version 3 of                 *
-*    the License, or (at your option) any later version.                            *
-*                                                                                   *
-*    This program is distributed in the hope that it will be useful,                *
-*    but WITHOUT ANY WARRANTY; without even the implied warranty of                 *
-*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                  *
-*    GNU General Public License for more details.                                   *
-*    ( http://www.fsf.org/licenses/agpl.txt )                                       *
-************************************************************************************/
+/*****************************************************************************
+* Copyright (C) 2018 Pablo Correa Gomez                                      *
+*                                                                            *
+*    This program is free software; you can redistribute it and/or modify    *
+*    it under the terms of the GNU Affero General Public License as          *
+*    published by the Free Software Foundation; either version 3 of          *
+*    the License, or (at your option) any later version.                     *
+*                                                                            *
+*    This program is distributed in the hope that it will be useful,         *
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of          *
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           *
+*    GNU General Public License for more details.                            *
+*    ( http://www.fsf.org/licenses/agpl.txt )                                *
+*****************************************************************************/
 
 #include "fpga_top.h"
 #include <stdio.h>
 
-#if 0
 void rm_nl(char *str)
 {
         int i = 0;
@@ -110,8 +109,6 @@ int main()
         char f_name[F_NAME_SIZE];
         FILE *f_index = fopen("/export/space/test_val_set/goldendata/inputs/index.txt","r");
         FILE *f_results = fopen("/export/space/test_val_set/goldendata/inputs/labels.txt","r");
-        //      FILE *f_index = fopen("/export/space/test_val_set/goldendata/inputs/index_1.txt","r");
-        //      FILE *f_results = fopen("/export/space/test_val_set/goldendata/inputs/labels_1.txt","r");
         FILE *f_input;
 
 
@@ -153,4 +150,3 @@ int main()
         fclose(f_results);
         return errorn;
 }
-#endif
