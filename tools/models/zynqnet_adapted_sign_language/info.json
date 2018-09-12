@@ -1,0 +1,27 @@
+{
+    "caffe flavor": "BVLC",
+    "caffe version": "1.0.0",
+    "creation time": "2018-04-25 17:43:35.943324",
+    "dataset_id": "20180417-121042-c79e",
+    "deploy file": "deploy.prototxt",
+    "digits version": "6.1.1",
+    "framework": "caffe",
+    "id": "20180425-174335-28a2",
+    "image dimensions": [
+        256,
+        256,
+        3
+    ],
+    "image resize mode": "half_crop",
+    "job id": "20180425-174335-28a2",
+    "labels file": "labels.txt",
+    "mean file": "mean.binaryproto",
+    "mean subtraction": "image",
+    "model file": "original.prototxt",
+    "name": "zynqnet_augmented_LLR_0,001_train_all",
+    "snapshot file": "snapshot_iter_1296.caffemodel",
+    "solver file": "solver.prototxt",
+    "status": "Done",
+    "train_val file": "train_val.prototxt",
+    "username": "pablo"
+}
